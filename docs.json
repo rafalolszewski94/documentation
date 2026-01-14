@@ -4,7 +4,7 @@
   "name": "IPBun Docs",
   "colors": {
     "primary": "#adadad",
-    "light": "#07C983",
+    "light": "#adadad",
     "dark": "#1c1c1c"
   },
   "favicon": "/favicon.svg",
