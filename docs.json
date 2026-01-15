@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "linden",
+  "theme": "mint",
   "name": "IPBun Docs",
   "colors": {
     "primary": "#adadad",
@@ -59,10 +59,10 @@
           {
             "group": "Endpoint examples",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/endpoint/ip",
+              "api-reference/endpoint/ip6",
+              "api-reference/endpoint/ip64",
+              "api-reference/endpoint/health"
             ]
           }
         ]
@@ -84,7 +84,6 @@
      "view",
      "chatgpt",
      "claude",
-     "perplexity",
      "mcp",
      "cursor",
      "vscode"
