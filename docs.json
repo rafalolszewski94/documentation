@@ -22,42 +22,31 @@
             ]
           },
           {
-            "group": "Customization",
+            "group": "Integration",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
               "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "essentials/markdown"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Development tools",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "ai-tools/cursor"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Introduction",
             "pages": [
               "api-reference/introduction"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Endpoints",
             "pages": [
               "api-reference/endpoint/ip",
               "api-reference/endpoint/ip6",

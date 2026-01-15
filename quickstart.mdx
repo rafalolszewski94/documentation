@@ -1,79 +1,100 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Get started with IPBun API in minutes"
 ---
 
-## Get started in three steps
+## Get your IP address instantly
 
-Get your documentation site running locally and make your first customization.
+Start using IPBun API with these simple steps.
 
-### Step 1: Set up your local environment
+### Step 1: Make your first API call
 
-<AccordionGroup>
-  <Accordion title="Clone your docs locally" icon="copy">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+Get your public IP address with a simple curl command:
 
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion title="Start the preview server" icon="rectangle-terminal">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+<CodeGroup>
+```bash cURL
+curl https://api.ipbun.com/api/v1/ip
+# Returns: 192.168.1.1
+```
 
-    <Tip>
-      Your preview updates automatically as you edit files.
-    </Tip>
-  </Accordion>
-</AccordionGroup>
+```javascript JavaScript
+fetch('https://api.ipbun.com/api/v1/ip')
+  .then(response => response.text())
+  .then(ip => console.log(ip));
+```
 
-### Step 2: Deploy your changes
+```python Python
+import requests
+response = requests.get('https://api.ipbun.com/api/v1/ip')
+print(response.text)
+```
+</CodeGroup>
 
-<AccordionGroup>
-  <Accordion title="Install our GitHub app" icon="github">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+### Step 2: Try different response formats
 
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-  </Accordion>
-  <Accordion title="Update your site name and colors" icon="palette">
-    For a first change, let's update the name and colors of your docs site.
+IPBun supports multiple response formats:
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+<CodeGroup>
+```bash Plain Text (default)
+curl https://api.ipbun.com/api/v1/ip
+# Returns: 192.168.1.1
+```
 
-    <Tip>
-      Try changing the primary color to see an immediate difference!
-    </Tip>
-  </Accordion>
-</AccordionGroup>
+```bash JSON with geolocation
+curl "https://api.ipbun.com/api/v1/ip?format=json"
+```
 
-### Step 3: Go live
+```json JSON Response
+{
+  "ip": "192.168.1.1",
+  "type": "ipv4",
+  "geolocation": {
+    "country": "United States",
+    "country_code": "US",
+    "city": "New York",
+    "coordinates": {
+      "latitude": 40.7128,
+      "longitude": -74.0060
+    }
+  }
+}
+```
+</CodeGroup>
 
-<Accordion title="Publish your docs" icon="rocket">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+### Step 3: Choose your endpoint
 
-## Next steps
+Select the right endpoint for your needs:
 
-Now that you have your docs running, explore these key features:
+| Endpoint | Purpose | Example Response |
+|----------|---------|------------------|
+| `/api/v1/ip` | IPv4 address only | `192.168.1.1` |
+| `/api/v1/ip6` | IPv6 address only | `2001:db8::1` |
+| `/api/v1/ip64` | Universal (IPv4/IPv6) | `192.168.1.1` or `2001:db8::1` |
+| `/api/v1/health` | Service health check | `{"status": "healthy"}` |
+
+## Integration examples
+
+See how to integrate IPBun in popular programming languages:
+
+<Card
+  title="Code Examples"
+  icon="code"
+  href="/essentials/code"
+>
+  Complete integration examples in JavaScript, Python, PHP, and more.
+</Card>
+
+## API Reference
 
 <CardGroup cols={2}>
-  <Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-    Learn MDX syntax and start writing your documentation.
+  <Card title="Full API Reference" icon="book" href="/api-reference/introduction">
+    Complete documentation for all endpoints and parameters.
   </Card>
-  <Card title="Customize style" icon="palette" href="/essentials/settings">
-    Make your docs match your brand perfectly.
-  </Card>
-  <Card title="Add code examples" icon="square-code" href="/essentials/code">
-    Include syntax-highlighted code blocks.
-  </Card>
-  <Card title="API documentation" icon="code" href="/api-reference/introduction">
-    Auto-generate API docs from OpenAPI specs.
+  <Card title="OpenAPI Specification" icon="file-code" href="/api-reference/openapi.json">
+    Machine-readable API specification for automated integration.
   </Card>
 </CardGroup>
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  **Rate Limiting**: IPBun implements fair usage limits. Check the `X-RateLimit-Remaining` header in responses to monitor your usage.
 </Note>

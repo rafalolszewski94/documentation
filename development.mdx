@@ -1,94 +1,146 @@
 ---
 title: 'Development'
-description: 'Preview changes locally to update your docs'
+description: 'Contribute to IPBun API documentation and development'
 ---
+
+## Contributing to IPBun Docs
+
+Help improve the IPBun documentation by contributing to this repository.
 
 <Info>
   **Prerequisites**:
   - Node.js version 19 or higher
-  - A docs repository with a `docs.json` file
+  - Git for version control
+  - A GitHub account
 </Info>
 
-Follow these steps to install and run Mintlify on your operating system.
+## Local Development Setup
 
 <Steps>
-<Step title="Install the Mintlify CLI">
+<Step title="Clone the repository">
 
 ```bash
-npm i -g mint
+git clone https://github.com/your-org/ipbun-docs.git
+cd ipbun-docs
 ```
 </Step>
 
-<Step title="Preview locally">
+<Step title="Install dependencies">
 
-Navigate to your docs directory where your `docs.json` file is located, and run the following command:
+```bash
+npm install
+```
+</Step>
+
+<Step title="Install Mintlify CLI">
+
+```bash
+npm install -g mintlify
+```
+</Step>
+
+<Step title="Start development server">
 
 ```bash
 mint dev
 ```
 
-A local preview of your documentation will be available at `http://localhost:3000`.
+A local preview will be available at `http://localhost:3000`.
 
 </Step>
 </Steps>
 
-## Custom ports
+## Making Changes
 
-By default, Mintlify uses port 3000. You can customize the port Mintlify runs on by using the `--port` flag. For example, to run Mintlify on port 3333, use this command:
+### Documentation Updates
 
-```bash
-mint dev --port 3333
-```
+1. **API Changes**: Update the OpenAPI specification in `api-reference/openapi.json`
+2. **Endpoint Documentation**: Modify files in `api-reference/endpoint/`
+3. **General Content**: Update `.mdx` files in the appropriate directories
 
-If you attempt to run Mintlify on a port that's already in use, it will use the next available port:
+### Code Examples
 
-```md
-Port 3000 is already in use. Trying 3001 instead.
-```
+When adding code examples, follow these guidelines:
 
-## Mintlify versions
+- Include examples in multiple programming languages
+- Use clear, readable code with comments
+- Test all code examples to ensure they work
+- Follow language-specific best practices
 
-Please note that each CLI release is associated with a specific version of Mintlify. If your local preview does not align with the production version, please update the CLI:
+### Testing API Endpoints
 
-```bash
-npm mint update
-```
-
-## Validating links
-
-The CLI can assist with validating links in your documentation. To identify any broken links, use the following command:
+Before documenting new endpoints, test them thoroughly:
 
 ```bash
-mint broken-links
+# Test basic functionality
+curl https://api.ipbun.com/api/v1/health
+
+# Test with different formats
+curl "https://api.ipbun.com/api/v1/ip?format=json"
+curl "https://api.ipbun.com/api/v1/ip?format=jsonp&callback=myCallback"
+
+# Test rate limiting
+curl -I https://api.ipbun.com/api/v1/ip
+# Check X-RateLimit-Remaining header
 ```
 
-## Deployment
+## Pull Request Process
 
-If the deployment is successful, you should see the following:
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/your-feature-name`
+3. **Make** your changes and test locally
+4. **Commit** your changes: `git commit -m "Add: description of changes"`
+5. **Push** to your branch: `git push origin feature/your-feature-name`
+6. **Create** a Pull Request with a clear description
 
-<Frame>
-  <img src="/images/checks-passed.png" alt="Screenshot of a deployment confirmation message that says All checks have passed." style={{ borderRadius: '0.5rem' }} />
-</Frame>
+## Code Quality
 
-## Code formatting
+- Use clear, descriptive commit messages
+- Follow MDX formatting guidelines
+- Ensure all links are valid (`mint broken-links`)
+- Test documentation builds locally before submitting
 
-We suggest using extensions on your IDE to recognize and format MDX. If you're a VSCode user, consider the [MDX VSCode extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) for syntax highlighting, and [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for code formatting.
+## API Development
+
+If you're contributing to the IPBun API itself (not just documentation):
+
+<Card
+  title="IPBun API Repository"
+  icon="external-link"
+  href="https://github.com/your-org/ipbun-api"
+>
+  The main IPBun API codebase built with Bun
+</Card>
 
 ## Troubleshooting
 
 <AccordionGroup>
-  <Accordion title='Error: Could not load the "sharp" module using the darwin-arm64 runtime'>
+  <Accordion title='Mintlify CLI Issues'>
 
-    This may be due to an outdated version of node. Try the following:
-    1. Remove the currently-installed version of the CLI: `npm remove -g mint`
-    2. Upgrade to Node v19 or higher.
-    3. Reinstall the CLI: `npm i -g mint`
+    **Could not load the "sharp" module**: Upgrade to Node.js v19+ and reinstall the CLI:
+
+    ```bash
+    npm remove -g mintlify
+    npm install -g mintlify
+    ```
   </Accordion>
 
-  <Accordion title="Issue: Encountering an unknown error">
-  
-    Solution: Go to the root of your device and delete the `~/.mintlify` folder. Then run `mint dev` again.
+  <Accordion title="Documentation Build Errors">
+
+    **Unknown error**: Clear Mintlify cache and restart:
+
+    ```bash
+    rm -rf ~/.mintlify
+    mint dev
+    ```
+  </Accordion>
+
+  <Accordion title="Link Validation">
+
+    Check for broken links in your documentation:
+
+    ```bash
+    mint broken-links
+    ```
   </Accordion>
 </AccordionGroup>
-
-Curious about what changed in the latest CLI version? Check out the [CLI changelog](https://www.npmjs.com/package/mintlify?activeTab=versions).

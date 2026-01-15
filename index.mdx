@@ -1,97 +1,142 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "IPBun API"
+description: "Simple, fast, and reliable public IP address API documentation"
 ---
 
-## Setting up
+## Welcome to IPBun
 
-Get your documentation site up and running in minutes.
+IPBun is a simple, fast, and reliable public IP address API built with Bun. Get your public IP address in multiple formats with optional geolocation data.
+
+## Quick Start
+
+Get your IP address with a simple API call.
+
+```bash
+curl https://api.ipbun.com/api/v1/ip
+# Returns: 192.168.1.1
+```
 
 <Card
-  title="Start here"
+  title="Get Started"
   icon="rocket"
   href="/quickstart"
   horizontal
 >
-  Follow our three step quickstart guide.
+  Set up your development environment and start integrating IPBun.
 </Card>
 
-## Make it yours
+## API Endpoints
 
-Design a docs site that looks great and empowers your users.
+Choose the right endpoint for your needs.
 
 <Columns cols={2}>
   <Card
-    title="Edit locally"
+    title="IPv4 Address"
+    icon="globe"
+    href="/api-reference/endpoint/ip"
+  >
+    Get your public IPv4 address in text or JSON format.
+  </Card>
+  <Card
+    title="IPv6 Address"
+    icon="globe"
+    href="/api-reference/endpoint/ip6"
+  >
+    Get your public IPv6 address when available.
+  </Card>
+  <Card
+    title="Universal IP"
+    icon="globe"
+    href="/api-reference/endpoint/ip64"
+  >
+    Get your IP address regardless of IPv4 or IPv6.
+  </Card>
+  <Card
+    title="Health Check"
+    icon="heartbeat"
+    href="/api-reference/endpoint/health"
+  >
+    Check API availability and status.
+  </Card>
+</Columns>
+
+## Response Formats
+
+Flexible response formats to fit your application.
+
+<Columns cols={2}>
+  <Card
+    title="Plain Text"
+    icon="file-text"
+    href="/api-reference/introduction"
+  >
+    Simple text responses perfect for quick lookups.
+  </Card>
+  <Card
+    title="JSON Response"
+    icon="code"
+    href="/api-reference/introduction"
+  >
+    Structured JSON with geolocation and metadata.
+  </Card>
+  <Card
+    title="JSONP Support"
+    icon="code"
+    href="/api-reference/introduction"
+  >
+    Cross-origin requests with JSONP callbacks.
+  </Card>
+  <Card
+    title="Code Examples"
+    icon="terminal"
+    href="/essentials/code"
+  >
+    Integration examples in multiple programming languages.
+  </Card>
+</Columns>
+
+## Features
+
+What makes IPBun reliable and easy to use.
+
+- **Fast Response Times** - Built with Bun for lightning-fast performance
+- **Multiple Formats** - Text, JSON, and JSONP support
+- **Geolocation Data** - Optional location information with coordinates
+- **Rate Limiting** - Fair usage with clear limits and headers
+- **IPv4 & IPv6 Support** - Works with both address types
+- **OpenAPI Specification** - Complete API documentation
+
+## Development
+
+Tools and resources for developers.
+
+<Columns cols={2}>
+  <Card
+    title="Local Development"
     icon="pen-to-square"
     href="/development"
   >
-    Edit your docs locally and preview them in real time.
+    Set up your docs locally and preview changes in real-time.
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
+    title="API Reference"
+    icon="book"
     href="/api-reference/introduction"
   >
-    Auto-generate API documentation from OpenAPI specifications.
+    Complete API documentation with examples.
   </Card>
-</Columns>
-
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
   <Card
-    title="Write with MDX"
+    title="Content Writing"
     icon="pen-fancy"
     href="/essentials/markdown"
   >
-    Use MDX to style your docs pages.
+    Write documentation with MDX and rich components.
   </Card>
   <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
+    title="AI Development"
+    icon="robot"
+    href="/ai-tools/cursor"
   >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
+    Accelerate development with AI-powered tools.
   </Card>
 </Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
