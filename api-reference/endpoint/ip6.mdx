@@ -1,0 +1,84 @@
+---
+title: 'Get IPv6 Address'
+openapi: 'GET /api/v1/ip6'
+---
+
+Returns the client's public IPv6 address. This endpoint specifically returns IPv6 addresses and will return an error if no IPv6 address is detected.
+
+## Parameters
+
+<ParamField query="format" type="string" default="text">
+  Response format: 'text' for plain IP string, 'json' for JSON object with geolocation data, 'jsonp' for JSONP callback
+</ParamField>
+
+<ParamField query="callback" type="string" default="callback">
+  Callback function name for JSONP responses. Only used when format=jsonp.
+</ParamField>
+
+## Response Examples
+
+### Plain Text Response
+
+```bash
+curl https://api.ipbun.com/api/v1/ip6
+```
+
+```text
+2001:db8::1
+```
+
+### JSON Response with Geolocation
+
+```bash
+curl "https://api.ipbun.com/api/v1/ip6?format=json"
+```
+
+```json
+{
+  "ip": "2001:db8::1",
+  "geolocation": {
+    "country": "United States",
+    "countryCode": "US",
+    "city": "San Francisco",
+    "region": "California",
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "timezone": "America/Los_Angeles",
+    "isp": "Example ISP LLC",
+    "org": "Example Organization",
+    "as": "AS12345",
+    "asname": "EXAMPLE-AS",
+    "mobile": false,
+    "proxy": false,
+    "hosting": true
+  }
+}
+```
+
+### JSONP Response
+
+```bash
+curl "https://api.ipbun.com/api/v1/ip6?format=jsonp&callback=myCallback"
+```
+
+```javascript
+myCallback({
+  "ip": "2001:db8::1",
+  "geolocation": {
+    "country": "United States",
+    "countryCode": "US",
+    "city": "San Francisco",
+    "region": "California",
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "timezone": "America/Los_Angeles",
+    "isp": "Example ISP LLC",
+    "org": "Example Organization",
+    "as": "AS12345",
+    "asname": "EXAMPLE-AS",
+    "mobile": false,
+    "proxy": false,
+    "hosting": true
+  }
+})
+```

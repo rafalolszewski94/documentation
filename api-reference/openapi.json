@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "IPBun - Public IP Address API",
+    "description": "A simple, fast, and reliable public IP address API built with Bun, similar to ipify.org. This service provides your public IP address in various formats and supports both IPv4 and IPv6 addresses with optional geolocation data.",
     "license": {
       "name": "MIT"
     },
@@ -10,143 +10,792 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    },
     {
-      "bearerAuth": []
+      "url": "https://api.ipbun.com",
+      "description": "Production server (example)"
     }
   ],
   "paths": {
-    "/plants": {
+    "/api/v1/ip": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
+        "summary": "Get IPv4 Address",
+        "description": "Returns the client's public IPv4 address. This endpoint specifically returns IPv4 addresses and will return an error if no IPv4 address is detected.",
+        "tags": ["IP Detection"],
         "parameters": [
           {
-            "name": "limit",
+            "name": "format",
             "in": "query",
-            "description": "The maximum number of results to return",
+            "description": "Response format: 'text' for plain IP string, 'json' for JSON object with geolocation data, 'jsonp' for JSONP callback",
             "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
+              "type": "string",
+              "enum": ["text", "json", "jsonp"],
+              "default": "text"
+            },
+            "example": "json"
+          },
+          {
+            "name": "callback",
+            "in": "query",
+            "description": "Callback function name for JSONP responses. Only used when format=jsonp.",
+            "schema": {
+              "type": "string",
+              "default": "callback"
+            },
+            "example": "myCallback"
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Successful response with IPv4 address",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "description": "Plain text IPv4 address",
+                  "example": "192.168.1.100"
+                },
+                "example": "203.0.113.1"
+              },
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "$ref": "#/components/schemas/IPResponse"
+                },
+                "example": {
+                  "ip": "203.0.113.1",
+                  "geolocation": {
+                    "country": "United States",
+                    "countryCode": "US",
+                    "city": "New York",
+                    "region": "New York",
+                    "latitude": 40.7128,
+                    "longitude": -74.0060,
+                    "timezone": "America/New_York",
+                    "isp": "Example ISP LLC",
+                    "org": "Example Organization",
+                    "as": "AS12345",
+                    "asname": "EXAMPLE-AS",
+                    "mobile": false,
+                    "proxy": false,
+                    "hosting": false
                   }
                 }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "string",
+                  "description": "JSONP callback function with IP data",
+                  "example": "callback({\"ip\":\"203.0.113.1\"})"
+                }
+              }
+            },
+            "headers": {
+              "X-RateLimit-Remaining": {
+                "description": "Number of requests remaining in the current rate limit window",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 99
+              },
+              "X-RateLimit-Reset": {
+                "description": "Unix timestamp when the rate limit window resets",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 1704067200
+              },
+              "Access-Control-Allow-Origin": {
+                "description": "CORS header allowing cross-origin requests",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "*"
               }
             }
           },
           "400": {
-            "description": "Unexpected error",
+            "description": "Bad Request - Unable to determine IPv4 address",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Unable to determine IP address",
+                  "code": "NO_IP_FOUND"
                 }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "callback({\"error\":\"Unable to determine IP address\",\"code\":\"NO_IP_FOUND\"})"
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Rate limit exceeded",
+                  "code": "RATE_LIMIT_EXCEEDED"
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "callback({\"error\":\"Rate limit exceeded\",\"code\":\"RATE_LIMIT_EXCEEDED\"})"
+              }
+            },
+            "headers": {
+              "X-RateLimit-Remaining": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 0
+              },
+              "X-RateLimit-Reset": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 1704067200
+              },
+              "Retry-After": {
+                "description": "Number of seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 60
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed - Only GET requests are allowed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Method Not Allowed"
+              }
+            },
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "GET, OPTIONS"
               }
             }
           }
         }
       },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
+      "options": {
+        "summary": "CORS preflight request",
+        "description": "Handles CORS preflight requests for the IPv4 endpoint",
+        "tags": ["CORS"],
         "responses": {
           "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
+            "description": "CORS preflight successful",
+            "headers": {
+              "Access-Control-Allow-Origin": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
+                  "type": "string"
+                },
+                "example": "*"
+              },
+              "Access-Control-Allow-Methods": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
+                  "type": "string"
+                },
+                "example": "GET, OPTIONS"
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Content-Type"
+              },
+              "Access-Control-Max-Age": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "86400"
               }
             }
           }
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
+    "/api/v1/ip6": {
+      "get": {
+        "summary": "Get IPv6 Address",
+        "description": "Returns the client's public IPv6 address. This endpoint specifically returns IPv6 addresses and will return an error if no IPv6 address is detected.",
+        "tags": ["IP Detection"],
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
+            "name": "format",
+            "in": "query",
+            "description": "Response format: 'text' for plain IP string, 'json' for JSON object with geolocation data, 'jsonp' for JSONP callback",
             "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
+              "type": "string",
+              "enum": ["text", "json", "jsonp"],
+              "default": "text"
+            },
+            "example": "json"
+          },
+          {
+            "name": "callback",
+            "in": "query",
+            "description": "Callback function name for JSONP responses. Only used when format=jsonp.",
+            "schema": {
+              "type": "string",
+              "default": "callback"
+            },
+            "example": "myCallback"
           }
         ],
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
+          "200": {
+            "description": "Successful response with IPv6 address",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "description": "Plain text IPv6 address",
+                  "example": "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+                },
+                "example": "2001:db8::1"
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPResponse"
+                },
+                "example": {
+                  "ip": "2001:db8::1",
+                  "geolocation": {
+                    "country": "United States",
+                    "countryCode": "US",
+                    "city": "San Francisco",
+                    "region": "California",
+                    "latitude": 37.7749,
+                    "longitude": -122.4194,
+                    "timezone": "America/Los_Angeles",
+                    "isp": "Example ISP LLC",
+                    "org": "Example Organization",
+                    "as": "AS12345",
+                    "asname": "EXAMPLE-AS",
+                    "mobile": false,
+                    "proxy": false,
+                    "hosting": true
+                  }
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "string",
+                  "description": "JSONP callback function with IP data",
+                  "example": "callback({\"ip\":\"2001:db8::1\"})"
+                }
+              }
+            },
+            "headers": {
+              "X-RateLimit-Remaining": {
+                "description": "Number of requests remaining in the current rate limit window",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 99
+              },
+              "X-RateLimit-Reset": {
+                "description": "Unix timestamp when the rate limit window resets",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 1704067200
+              },
+              "Access-Control-Allow-Origin": {
+                "description": "CORS header allowing cross-origin requests",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "*"
+              }
+            }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Bad Request - Unable to determine IPv6 address",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Unable to determine IP address",
+                  "code": "NO_IP_FOUND"
                 }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "callback({\"error\":\"Unable to determine IP address\",\"code\":\"NO_IP_FOUND\"})"
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Rate limit exceeded",
+                  "code": "RATE_LIMIT_EXCEEDED"
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "callback({\"error\":\"Rate limit exceeded\",\"code\":\"RATE_LIMIT_EXCEEDED\"})"
+              }
+            },
+            "headers": {
+              "X-RateLimit-Remaining": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 0
+              },
+              "X-RateLimit-Reset": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 1704067200
+              },
+              "Retry-After": {
+                "description": "Number of seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 60
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed - Only GET requests are allowed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Method Not Allowed"
+              }
+            },
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "GET, OPTIONS"
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS preflight request",
+        "description": "Handles CORS preflight requests for the IPv6 endpoint",
+        "tags": ["CORS"],
+        "responses": {
+          "200": {
+            "description": "CORS preflight successful",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "*"
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "GET, OPTIONS"
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Content-Type"
+              },
+              "Access-Control-Max-Age": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "86400"
               }
             }
           }
         }
       }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+    },
+    "/api/v1/ip64": {
+      "get": {
+        "summary": "Get Universal IP Address",
+        "description": "Returns the client's public IP address (IPv4 or IPv6, whichever is detected). This is the universal endpoint that works with both IP versions.",
+        "tags": ["IP Detection"],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Response format: 'text' for plain IP string, 'json' for JSON object with geolocation data, 'jsonp' for JSONP callback",
+            "schema": {
+              "type": "string",
+              "enum": ["text", "json", "jsonp"],
+              "default": "text"
+            },
+            "example": "json"
+          },
+          {
+            "name": "callback",
+            "in": "query",
+            "description": "Callback function name for JSONP responses. Only used when format=jsonp.",
+            "schema": {
+              "type": "string",
+              "default": "callback"
+            },
+            "example": "myCallback"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with detected IP address",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "description": "Plain text IP address (IPv4 or IPv6)",
+                  "example": "192.168.1.100"
+                },
+                "examples": {
+                  "ipv4": {
+                    "value": "203.0.113.1",
+                    "summary": "IPv4 address example"
+                  },
+                  "ipv6": {
+                    "value": "2001:db8::1",
+                    "summary": "IPv6 address example"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPResponse"
+                },
+                "examples": {
+                  "ipv4_with_geolocation": {
+                    "value": {
+                      "ip": "203.0.113.1",
+                      "geolocation": {
+                        "country": "United States",
+                        "countryCode": "US",
+                        "city": "New York",
+                        "region": "New York",
+                        "latitude": 40.7128,
+                        "longitude": -74.0060,
+                        "timezone": "America/New_York",
+                        "isp": "Example ISP LLC",
+                        "org": "Example Organization",
+                        "as": "AS12345",
+                        "asname": "EXAMPLE-AS",
+                        "mobile": false,
+                        "proxy": false,
+                        "hosting": false
+                      }
+                    },
+                    "summary": "IPv4 response with geolocation data"
+                  },
+                  "ipv6_with_geolocation": {
+                    "value": {
+                      "ip": "2001:db8::1",
+                      "geolocation": {
+                        "country": "Japan",
+                        "countryCode": "JP",
+                        "city": "Tokyo",
+                        "region": "Tokyo",
+                        "latitude": 35.6762,
+                        "longitude": 139.6503,
+                        "timezone": "Asia/Tokyo",
+                        "isp": "Example ISP LLC",
+                        "org": "Example Organization",
+                        "as": "AS12345",
+                        "asname": "EXAMPLE-AS",
+                        "mobile": false,
+                        "proxy": false,
+                        "hosting": true
+                      }
+                    },
+                    "summary": "IPv6 response with geolocation data"
+                  },
+                  "ip_only": {
+                    "value": {
+                      "ip": "192.0.2.1"
+                    },
+                    "summary": "IP-only response when geolocation data is unavailable"
+                  }
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "string",
+                  "description": "JSONP callback function with IP data",
+                  "example": "callback({\"ip\":\"203.0.113.1\"})"
+                },
+                "examples": {
+                  "ipv4_jsonp": {
+                    "value": "myCallback({\"ip\":\"203.0.113.1\"})",
+                    "summary": "IPv4 JSONP response"
+                  },
+                  "ipv6_jsonp": {
+                    "value": "myCallback({\"ip\":\"2001:db8::1\"})",
+                    "summary": "IPv6 JSONP response"
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-RateLimit-Remaining": {
+                "description": "Number of requests remaining in the current rate limit window",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 99
+              },
+              "X-RateLimit-Reset": {
+                "description": "Unix timestamp when the rate limit window resets",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 1704067200
+              },
+              "Access-Control-Allow-Origin": {
+                "description": "CORS header allowing cross-origin requests",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "*"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Unable to determine IP address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Unable to determine IP address",
+                  "code": "NO_IP_FOUND"
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "callback({\"error\":\"Unable to determine IP address\",\"code\":\"NO_IP_FOUND\"})"
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Rate limit exceeded",
+                  "code": "RATE_LIMIT_EXCEEDED"
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "callback({\"error\":\"Rate limit exceeded\",\"code\":\"RATE_LIMIT_EXCEEDED\"})"
+              }
+            },
+            "headers": {
+              "X-RateLimit-Remaining": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 0
+              },
+              "X-RateLimit-Reset": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 1704067200
+              },
+              "Retry-After": {
+                "description": "Number of seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 60
+              }
+            }
+          },
+          "405": {
+            "description": "Method Not Allowed - Only GET requests are allowed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Method Not Allowed"
+              }
+            },
+            "headers": {
+              "Allow": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "GET, OPTIONS"
               }
             }
           }
-        },
+        }
+      },
+      "options": {
+        "summary": "CORS preflight request",
+        "description": "Handles CORS preflight requests for the universal IP endpoint",
+        "tags": ["CORS"],
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+            "description": "CORS preflight successful",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "*"
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "GET, OPTIONS"
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Content-Type"
+              },
+              "Access-Control-Max-Age": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "86400"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Returns the health status of the IPBun API service, including server status, timestamp, and version information.",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Service is healthy and operational",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "ok",
+                  "timestamp": "2025-01-15T10:30:00.000Z",
+                  "version": "1.0.0"
+                }
+              }
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "description": "CORS header allowing cross-origin requests",
+                "schema": {
+                  "type": "string"
+                },
+                "example": "*"
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS preflight request",
+        "description": "Handles CORS preflight requests for the health endpoint",
+        "tags": ["CORS"],
+        "responses": {
+          "200": {
+            "description": "CORS preflight successful",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "*"
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "GET, OPTIONS"
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Content-Type"
+              },
+              "Access-Control-Max-Age": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "86400"
+              }
+            }
           }
         }
       }
@@ -154,64 +803,177 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "IPResponse": {
         "type": "object",
+        "required": ["ip"],
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "ip": {
+            "type": "string",
+            "description": "The detected public IP address (IPv4 or IPv6)",
+            "example": "203.0.113.1",
+            "oneOf": [
+              {
+                "description": "IPv4 address in dotted decimal notation",
+                "pattern": "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$",
+                "example": "192.168.1.100"
+              },
+              {
+                "description": "IPv6 address in colon-hexadecimal notation",
+                "pattern": "^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$",
+                "example": "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
+              }
+            ]
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          "geolocation": {
+            "type": "object",
+            "description": "Geolocation information for the IP address (only included when GeoLite2 databases are available and format is json/jsonp)",
+            "properties": {
+              "country": {
+                "type": "string",
+                "description": "Full country name",
+                "example": "United States"
+              },
+              "countryCode": {
+                "type": "string",
+                "description": "Two-letter country code (ISO 3166-1 alpha-2)",
+                "example": "US",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "city": {
+                "type": "string",
+                "description": "City name",
+                "example": "New York",
+                "nullable": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Region or state name",
+                "example": "New York",
+                "nullable": true
+              },
+              "latitude": {
+                "type": "number",
+                "format": "float",
+                "description": "Latitude coordinate",
+                "example": 40.7128,
+                "minimum": -90,
+                "maximum": 90
+              },
+              "longitude": {
+                "type": "number",
+                "format": "float",
+                "description": "Longitude coordinate",
+                "example": -74.0060,
+                "minimum": -180,
+                "maximum": 180
+              },
+              "timezone": {
+                "type": "string",
+                "description": "IANA timezone identifier",
+                "example": "America/New_York",
+                "nullable": true
+              },
+              "isp": {
+                "type": "string",
+                "description": "Internet Service Provider name",
+                "example": "Example ISP LLC"
+              },
+              "org": {
+                "type": "string",
+                "description": "Organization name",
+                "example": "Example Organization",
+                "nullable": true
+              },
+              "as": {
+                "type": "string",
+                "description": "Autonomous System number",
+                "example": "AS12345",
+                "nullable": true
+              },
+              "asname": {
+                "type": "string",
+                "description": "Autonomous System name",
+                "example": "EXAMPLE-AS",
+                "nullable": true
+              },
+              "mobile": {
+                "type": "boolean",
+                "description": "Whether the connection is from a mobile network",
+                "example": false,
+                "nullable": true
+              },
+              "proxy": {
+                "type": "boolean",
+                "description": "Whether the IP is associated with a proxy service",
+                "example": false,
+                "nullable": true
+              },
+              "hosting": {
+                "type": "boolean",
+                "description": "Whether the IP is associated with hosting services",
+                "example": false,
+                "nullable": true
+              }
+            },
+            "nullable": true
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+      "ErrorResponse": {
         "type": "object",
+        "required": ["error"],
         "properties": {
           "error": {
-            "type": "integer",
-            "format": "int32"
+            "type": "string",
+            "description": "Human-readable error message",
+            "example": "Rate limit exceeded"
           },
-          "message": {
-            "type": "string"
+          "code": {
+            "type": "string",
+            "description": "Machine-readable error code",
+            "example": "RATE_LIMIT_EXCEEDED",
+            "enum": ["NO_IP_FOUND", "RATE_LIMIT_EXCEEDED"]
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "required": ["status", "timestamp", "version"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Health status of the service",
+            "enum": ["ok"],
+            "example": "ok"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp of when the health check was performed",
+            "example": "2025-01-15T10:30:00.000Z"
+          },
+          "version": {
+            "type": "string",
+            "description": "API version",
+            "example": "1.0.0",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
           }
         }
       }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
-      }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "IP Detection",
+      "description": "Endpoints for detecting and retrieving public IP addresses"
+    },
+    {
+      "name": "Health",
+      "description": "Service health monitoring endpoints"
+    },
+    {
+      "name": "CORS",
+      "description": "Cross-Origin Resource Sharing preflight endpoints"
+    }
+  ]
 }
